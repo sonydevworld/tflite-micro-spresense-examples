@@ -13,14 +13,21 @@ See the License for the specific language governing permissions and
 limitations under the License.
 ==============================================================================*/
 
+// The SPRESENSE_CONFIG_H is defined on compiler option.
+// It contains "nuttx/config.h" from Spresense SDK to see the configurated
+// parameters.
+#include SPRESENSE_CONFIG_H
+#include "spresense_image_provider.h"
+
 #include "image_provider.h"
 
 #include "model_settings.h"
 
 TfLiteStatus GetImage(tflite::ErrorReporter* error_reporter, int image_width,
                       int image_height, int channels, int8_t* image_data) {
-  for (int i = 0; i < image_width * image_height * channels; ++i) {
-    image_data[i] = 0;
+  if (spresense_getimage((unsigned char*)image_data) == 0) {
+    return kTfLiteOk;
+  } else {
+    return kTfLiteError;
   }
-  return kTfLiteOk;
 }

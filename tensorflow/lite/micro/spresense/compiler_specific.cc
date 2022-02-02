@@ -1,4 +1,4 @@
-/* Copyright 2019 The TensorFlow Authors. All Rights Reserved.
+/* Copyright 2021 The TensorFlow Authors. All Rights Reserved.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -13,12 +13,14 @@ See the License for the specific language governing permissions and
 limitations under the License.
 ==============================================================================*/
 
-#ifndef TENSORFLOW_LITE_MICRO_EXAMPLES_MAGIC_WAND_OUTPUT_HANDLER_H_
-#define TENSORFLOW_LITE_MICRO_EXAMPLES_MAGIC_WAND_OUTPUT_HANDLER_H_
+#ifdef __cplusplus
+extern "C" {
+#endif  // __cplusplus
 
-#include "tensorflow/lite/c/common.h"
-#include "tensorflow/lite/micro/micro_error_reporter.h"
+char dummy[16];
+char* _impure_ptr = &dummy[0];
+void __assert_func(const char*, int, const char*, const char*) {}
 
-void HandleOutput(tflite::ErrorReporter* error_reporter, int kind);
-
-#endif  // TENSORFLOW_LITE_MICRO_EXAMPLES_MAGIC_WAND_OUTPUT_HANDLER_H_
+#ifdef __cplusplus
+}  // extern "C"
+#endif  // __cplusplus

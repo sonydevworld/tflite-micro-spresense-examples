@@ -13,27 +13,55 @@ See the License for the specific language governing permissions and
 limitations under the License.
 ==============================================================================*/
 
+// The SPRESENSE_CONFIG_H is defined on compiler option.
+// It contains "nuttx/config.h" from Spresense SDK to see the configurated
+// parameters.
+#include SPRESENSE_CONFIG_H
+#include "spresense_audio_provider.h"
+
 #include "audio_provider.h"
 
 #include "micro_features/micro_model_settings.h"
 
-namespace {
-int16_t g_dummy_audio_data[kMaxAudioSampleSize];
-int32_t g_latest_audio_timestamp = 0;
-}  // namespace
+// Below definition is for dump audio captured data for debugging.
+// #define CAPTURE_DATA
+
+#ifdef CAPTURE_DATA
+#include <stdio.h>
+#include <string.h>
+
+static int16_t tmp_data[16000];
+static int data_cnt;
+static bool is_printed = false;
+#endif
 
 TfLiteStatus GetAudioSamples(tflite::ErrorReporter* error_reporter,
                              int start_ms, int duration_ms,
                              int* audio_samples_size, int16_t** audio_samples) {
-  for (int i = 0; i < kMaxAudioSampleSize; ++i) {
-    g_dummy_audio_data[i] = 0;
+  if (spresense_audio_getsamples(start_ms, duration_ms, kAudioSampleFrequency,
+                                 audio_samples_size, audio_samples) < 0) {
+    return kTfLiteError;
+  } else {
+#ifdef CAPTURE_DATA
+    if (start_ms >= 10000) {
+      if (data_cnt == 0) printf("=========== Start Recording ==============\n");
+      if (data_cnt < 16000) {
+        int sz = (16000 - data_cnt) > *audio_samples_size ? *audio_samples_size
+                                                          : (16000 - data_cnt);
+        memcpy(&tmp_data[data_cnt], *audio_samples, sz * 2);
+        data_cnt += sz;
+      }
+      if (!is_printed && data_cnt >= 16000) {
+        printf("============ Stop Recording =============\n");
+        for (int i = 0; i < 16000; i++) {
+          printf("%d\n", tmp_data[i]);
+        }
+        is_printed = true;
+      }
+    }
+#endif
+    return kTfLiteOk;
   }
-  *audio_samples_size = kMaxAudioSampleSize;
-  *audio_samples = g_dummy_audio_data;
-  return kTfLiteOk;
 }
 
-int32_t LatestAudioTimestamp() {
-  g_latest_audio_timestamp += 100;
-  return g_latest_audio_timestamp;
-}
+int32_t LatestAudioTimestamp() { return spresense_audio_lasttimestamp(); }

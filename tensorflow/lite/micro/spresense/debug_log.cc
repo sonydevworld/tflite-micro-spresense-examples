@@ -1,4 +1,4 @@
-/* Copyright 2019 The TensorFlow Authors. All Rights Reserved.
+/* Copyright 2020 The TensorFlow Authors. All Rights Reserved.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -13,9 +13,28 @@ See the License for the specific language governing permissions and
 limitations under the License.
 ==============================================================================*/
 
-#ifndef TENSORFLOW_LITE_MICRO_EXAMPLES_MAGIC_WAND_GESTURE_PREDICTOR_H_
-#define TENSORFLOW_LITE_MICRO_EXAMPLES_MAGIC_WAND_GESTURE_PREDICTOR_H_
+#ifdef __cplusplus
+extern "C" {
+#endif  // __cplusplus
 
-extern int PredictGesture(float* output);
+#include "tensorflow/lite/micro/debug_log.h"
 
-#endif  // TENSORFLOW_LITE_MICRO_EXAMPLES_MAGIC_WAND_GESTURE_PREDICTOR_H_
+#include "tensorflow/lite/micro/spresense/debug_log_callback.h"
+
+static DebugLogCallback debug_log_callback = nullptr;
+
+void RegisterDebugLogCallback(void (*cb)(const char* s)) {
+  debug_log_callback = cb;
+}
+
+void DebugLog(const char* s) {
+#ifndef TF_LITE_STRIP_ERROR_STRINGS
+  if (debug_log_callback != nullptr) {
+    debug_log_callback(s);
+  }
+#endif
+}
+
+#ifdef __cplusplus
+}  // extern "C"
+#endif  // __cplusplus

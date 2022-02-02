@@ -13,6 +13,12 @@ See the License for the specific language governing permissions and
 limitations under the License.
 ==============================================================================*/
 
+// The SPRESENSE_CONFIG_H is defined on compiler option.
+// It contains "nuttx/config.h" from Spresense SDK to see the configurated
+// parameters.
+#include SPRESENSE_CONFIG_H
+#include "spresense_command_responder.h"
+
 #include "command_responder.h"
 
 // The default implementation writes out the name of the recognized command
@@ -21,8 +27,7 @@ limitations under the License.
 void RespondToCommand(tflite::ErrorReporter* error_reporter,
                       int32_t current_time, const char* found_command,
                       uint8_t score, bool is_new_command) {
-  if (is_new_command) {
-    TF_LITE_REPORT_ERROR(error_reporter, "Heard %s (%d) @%dms", found_command,
-                         score, current_time);
-  }
+  TF_LITE_REPORT_ERROR(error_reporter, "%s Heard %s (%d) @%dms",
+                       is_new_command ? "F" : " ", found_command, score,
+                       current_time);
 }
